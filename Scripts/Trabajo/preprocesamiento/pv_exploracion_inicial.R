@@ -1,4 +1,9 @@
 #exploracion----
+base<- read_excel(Sys.glob("Data/Bases/Cruda/Perfil participantes (respuestas).xlsx"), 
+                  guess_max = Inf)
+
+#dimensiones----
+dim(base)
 
 #duplicados fila----
 get_dupes(base)
@@ -54,4 +59,4 @@ sum(rowSums(is.na(base)) == ncol(base))
 
 #graficoNA
 naniar::vis_miss(base, warn_large_data = F)
-
+mean(is.na(base))
