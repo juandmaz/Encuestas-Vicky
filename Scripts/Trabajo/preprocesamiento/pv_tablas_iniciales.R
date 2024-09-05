@@ -1,11 +1,37 @@
 str(base)
 map(base, table)
 
+#tabla general
+base %>%
+  select(-c(id, 
+            otra_forma, 
+            p1_edad, 
+            p9_que_celular_tiene_marca_modelo, 
+            p12_como_se_conecta_a_internet_en_el_celular_datos_wifi, 
+            p13_que_aplicaciones_utiliza_en_su_celular, 
+            otras)) %>%
+  filter(!str_detect(grupo, ',')) %>%
+  mutate_all(as.factor) %>%
+  tbl_summary(by= grupo,
+              missing = "always",
+              statistic = list(all_categorical() ~ "{n} {p}"),
+              missing_text= "Casos perdidos",
+              digits = list(all_categorical() ~ c(0,1))) %>%
+  modify_header(label = "") %>%
+  add_p() %>%
+  add_overall() %>%
+  gtsummary::as_tibble() %>% 
+  write.csv(., na = "")
+
 #grupo
-table(base$grupo, useNA = 'always')
+base %>%
+  count(grupo) %>%
+  write.csv
 
 #edad
-summary(base$p1_edad)
+summary(base$p1_edad) %>%
+  #as_tibble #%>%
+  write.csv
 
 #modelo celular
 base %>%
@@ -22,7 +48,9 @@ base %>%
                                       str_detect(., 'Xiaomi') ~ 'Xiaomi',
                                       TRUE ~.
                                       ))) %>%
-  table(., useNA = 'always')
+  table(., useNA = 'always') %>%
+  as_tibble %>%
+  write.csv
 
 #conectarse a wifi
 base %>%
@@ -30,29 +58,20 @@ base %>%
   pull() %>%
   str_split(., ",\\s*") %>%
   unlist %>% 
-  table
+  table %>%
+  as_tibble %>%
+  write.csv
 
 
 base %>%
-  select(-c(id, 
-         otra_forma, 
-         p1_edad, 
-         p9_que_celular_tiene_marca_modelo, 
-         p12_como_se_conecta_a_internet_en_el_celular_datos_wifi, 
-         p13_que_aplicaciones_utiliza_en_su_celular, 
-         otras)) %>%
-  filter(!str_detect(grupo, ',')) %>%
-  mutate_all(as.factor) %>%
-  tbl_summary(by= grupo,
-              missing = "always",
-              statistic = list(all_categorical() ~ "{n} {p}"),
-              missing_text= "Casos perdidos",
-              digits = list(all_categorical() ~ c(0,1))) %>%
-  modify_header(label = "") %>%
-  add_p() %>%
-  add_overall() %>%
-  gtsummary::as_tibble() %>% 
-  write.csv(., na = "")
+  select(p12_como_se_conecta_a_internet_en_el_celular_datos_wifi) %>% 
+  pull() %>%
+  str_split(., ",\\s*") %>%
+  sapply(., length) %>%
+  table %>%
+  as.tibble %>%
+  write.csv
+
 
 #apps mas usadas
 base %>%
@@ -60,7 +79,9 @@ base %>%
   pull() %>%
   str_split(., ",\\s*") %>%
   unlist %>% 
-  table
+  table %>%
+  as.tibble %>%
+  write.csv
   
 #frecuencia de cantidad de apps
 base %>%
@@ -69,15 +90,17 @@ base %>%
   str_split(., ",\\s*") %>%
   sapply(., length) %>%
   table %>%
-  as.tibble
+  as.tibble %>%
+  write.csv
 
 #otras apps
-#conectarse a wifi
 base %>%
   select(otras) %>% 
   pull() %>%
   str_split(., ",\\s*") %>%
   unlist %>% 
-  table
+  table %>%
+  as.tibble %>%
+  write.csv
 
 
